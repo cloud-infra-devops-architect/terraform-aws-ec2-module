@@ -96,7 +96,7 @@ jobs:
         id: trivy
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
-            | sh -s -- -b /usr/local/bin v0.70.0
+            | sh -s -- -b /usr/local/bin v0.75.0
           set +e
           trivy config . \
             --config trivy.yaml \
@@ -116,8 +116,13 @@ jobs:
       - name: 🧹 Install & Run TFLint
         id: tflint
         run: |
-          curl -sfL https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh \
-            | bash
+          TFLINT_VERSION="v0.64.0"
+          curl -sSfL \
+            "https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_amd64.zip" \
+            -o /tmp/tflint.zip
+          unzip -q /tmp/tflint.zip -d /tmp/tflint-bin
+          sudo mv /tmp/tflint-bin/tflint /usr/local/bin/tflint
+          sudo chmod +x /usr/local/bin/tflint
           tflint --init --config .tflint.hcl
           set +e
           tflint --config .tflint.hcl --recursive 2>&1 | tee tflint-output.txt
