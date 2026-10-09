@@ -569,6 +569,7 @@ jobs:
       needs.security-scans.result == 'success' &&
       needs.repo-structure.result == 'success' &&
       github.event_name == 'push'
+    continue-on-error: true
 
     env:
       INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
@@ -577,24 +578,43 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - name: 🔑 Validate Infracost API key
+        run: |
+          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
+            -H "X-Api-Key: $INFRACOST_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"{products(filter:{vendorName:\"aws\"}){productHash}}"}' \
+            https://pricing.api.infracost.io/graphql || echo "000")
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::INFRACOST_API_KEY is invalid or expired (HTTP $STATUS). Skipping Infracost estimate."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+        id: validate_key
+
       - name: ⚙️ Setup Terraform
+        if: steps.validate_key.outputs.skip != 'true'
         uses: hashicorp/setup-terraform@651471c36a6092792c552e8b1bef71e592b462d8 # v3.1.2
         with:
           terraform_version: latest
           terraform_wrapper: false # required for Infracost to parse plan JSON
 
       - name: 💰 Setup Infracost
+        if: steps.validate_key.outputs.skip != 'true'
         uses: infracost/actions/setup@fb736a8f219195d6efdca58682069b16fe1bc280 # v4.2.0
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
       # ── terraform init in examples/ ─────────────────────────────────────────
       - name: 🔧 Terraform Init (examples)
+        if: steps.validate_key.outputs.skip != 'true'
         run: terraform init -backend=false
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       # ── Generate Infracost breakdown JSON and table ──────────────────────────
       - name: 📊 Generate Infracost breakdown
+        if: steps.validate_key.outputs.skip != 'true'
         run: |
           infracost breakdown \
             --path ${{ env.TF_WORKING_DIR }} \
@@ -606,7 +626,7 @@ jobs:
 
       # ── Upload JSON + table as artifact ─────────────────────────────────────
       - name: 📦 Upload Infracost artifacts
-        if: always()
+        if: always() && steps.validate_key.outputs.skip != 'true'
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: infracost-results
@@ -626,6 +646,7 @@ jobs:
       needs.security-scans.result == 'success' &&
       needs.repo-structure.result == 'success' &&
       github.event_name == 'pull_request'
+    continue-on-error: true
 
     permissions:
       contents: read
@@ -635,8 +656,25 @@ jobs:
       INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
 
     steps:
+      # ── Validate API key before attempting diff ──────────────────────────────
+      - name: 🔑 Validate Infracost API key
+        id: validate_key
+        run: |
+          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
+            -H "X-Api-Key: $INFRACOST_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"{products(filter:{vendorName:\"aws\"}){productHash}}"}' \
+            https://pricing.api.infracost.io/graphql || echo "000")
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::INFRACOST_API_KEY is invalid or expired (HTTP $STATUS). Skipping Infracost PR comment."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       # ── Checkout base branch (target of the PR) ─────────────────────────────
       - name: 📥 Checkout base branch
+        if: steps.validate_key.outputs.skip != 'true'
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event.pull_request.base.ref }}
@@ -644,6 +682,7 @@ jobs:
 
       # ── Checkout head branch (the feature branch / PR source) ──────────────
       - name: 📥 Checkout head branch
+        if: steps.validate_key.outputs.skip != 'true'
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event.pull_request.head.ref }}
@@ -651,6 +690,7 @@ jobs:
 
       # ── Run diff and post/update PR comment ───────────────────────────────
       - name: 💬 Post Infracost diff comment
+        if: steps.validate_key.outputs.skip != 'true'
         uses: infracost/actions/diff@fb736a8f219195d6efdca58682069b16fe1bc280 # v4.2.0
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
