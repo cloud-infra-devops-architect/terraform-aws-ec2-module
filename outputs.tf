@@ -44,7 +44,7 @@ output "subnet_id" {
 
 output "vpc_id" {
   description = "VPC ID of the subnet where the instance is running."
-  value       = aws_instance.this.vpc_id
+  value       = aws_instance.this.subnet_id != null ? data.aws_subnet.selected[0].vpc_id : null
 }
 
 output "private_ip" {
@@ -133,12 +133,12 @@ output "ebs_block_devices" {
 
 output "cpu_core_count" {
   description = "Number of CPU cores on the instance."
-  value       = aws_instance.this.cpu_core_count
+  value       = length(aws_instance.this.cpu_options) > 0 ? aws_instance.this.cpu_options[0].core_count : null
 }
 
 output "cpu_threads_per_core" {
   description = "Number of threads per CPU core."
-  value       = aws_instance.this.cpu_threads_per_core
+  value       = length(aws_instance.this.cpu_options) > 0 ? aws_instance.this.cpu_options[0].threads_per_core : null
 }
 
 output "ebs_optimized" {
@@ -186,7 +186,7 @@ output "aws_account_id" {
 
 output "aws_region" {
   description = "AWS region in which the instance was created."
-  value       = data.aws_region.current.name
+  value       = data.aws_region.current.region
 }
 
 output "aws_partition" {

@@ -133,13 +133,8 @@ resource "aws_instance" "this" {
     }
   }
 
-  # ── Placement (partition number) ─────────────────────────────────────────────
-  dynamic "placement" {
-    for_each = var.placement_group_partition_number != null ? [1] : []
-    content {
-      partition_number = var.placement_group_partition_number
-    }
-  }
+  placement_partition_number = var.placement_group_partition_number
+
 
   # ── Root EBS Volume ──────────────────────────────────────────────────────────
   root_block_device {
