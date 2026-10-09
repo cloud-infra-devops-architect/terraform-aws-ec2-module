@@ -28,8 +28,3 @@ data "aws_ami" "selected" {
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 data "aws_partition" "current" {}
-
-data "aws_subnet" "selected" {
-  count = var.subnet_id != null ? 1 : 0
-  id    = var.subnet_id
-}

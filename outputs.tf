@@ -44,7 +44,7 @@ output "subnet_id" {
 
 output "vpc_id" {
   description = "VPC ID of the subnet where the instance is running."
-  value       = aws_instance.this.subnet_id != null ? data.aws_subnet.selected[0].vpc_id : null
+  value       = var.create_security_group ? aws_security_group.created[0].vpc_id : var.vpc_id
 }
 
 output "private_ip" {
