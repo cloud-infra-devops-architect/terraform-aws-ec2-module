@@ -15,26 +15,25 @@ on:
       - main
       - dev
       - qa
-    types:
-        [
-          assigned,
-          unassigned,
-          labeled,
-          unlabeled,
-          opened,
-          edited,
-          reopened,
-          synchronize,
-          converted_to_draft,
-          ready_for_review,
-          locked,
-          unlocked,
-          review_requested,
-          review_request_removed,
-          auto_merge_enabled,
-          auto_merge_disabled
-          # closed
-        ]
+    types: [
+        assigned,
+        unassigned,
+        labeled,
+        unlabeled,
+        opened,
+        edited,
+        reopened,
+        synchronize,
+        converted_to_draft,
+        ready_for_review,
+        locked,
+        unlocked,
+        review_requested,
+        review_request_removed,
+        auto_merge_enabled,
+        auto_merge_disabled,
+        # closed
+      ]
 
 permissions:
   contents: read # This is required for actions/checkout to work properly and fetch the PR branch refs
@@ -42,8 +41,8 @@ permissions:
   id-token: write # Without id-token: write, GitHub won't generate the OIDC token needed for authentication.This is required for requesting the JWT token from GitHub IdP and exchanging it for AWS credentials using aws-actions/configure-aws-credentials action. AWS credentials required for Terraform Init to authenticate with private module registries and for Terraform Plan to authenticate with any AWS data sources or providers that require authentication.
 
 env:
-  TF_VERSION: "1.7.6"  # Terraform version to use for CI/CD
-  TF_WORKING_DIR: "."  # module root – contains main.tf, variables.tf, examples/, etc.
+  TF_VERSION: "1.7.6" # Terraform version to use for CI/CD
+  TF_WORKING_DIR: "." # module root – contains main.tf, variables.tf, examples/, etc.
 
 # ─────────────────────────────────────────────────────────────────────────────
 # JOB 1 – Security & Compliance Scans
@@ -54,13 +53,13 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     outputs:
-      checkov_result:  ${{ steps.checkov.outputs.result }}
-      trivy_result:    ${{ steps.trivy.outputs.result }}
-      tflint_result:   ${{ steps.tflint.outputs.result }}
+      checkov_result: ${{ steps.checkov.outputs.result }}
+      trivy_result: ${{ steps.trivy.outputs.result }}
+      tflint_result: ${{ steps.tflint.outputs.result }}
       gitleaks_result: ${{ steps.gitleaks.outputs.result }}
-      checkov_failed:  ${{ steps.checkov.outputs.failed }}
-      trivy_failed:    ${{ steps.trivy.outputs.failed }}
-      tflint_failed:   ${{ steps.tflint.outputs.failed }}
+      checkov_failed: ${{ steps.checkov.outputs.failed }}
+      trivy_failed: ${{ steps.trivy.outputs.failed }}
+      tflint_failed: ${{ steps.tflint.outputs.failed }}
       gitleaks_failed: ${{ steps.gitleaks.outputs.failed }}
 
     steps:
@@ -97,7 +96,7 @@ jobs:
         id: trivy
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
-            | sh -s -- -b /usr/local/bin v0.63.0
+            | sh -s -- -b /usr/local/bin v0.70.0
           set +e
           trivy config . \
             --config trivy.yaml \
@@ -136,7 +135,7 @@ jobs:
       - name: 🔐 Install & Run Gitleaks
         id: gitleaks
         run: |
-          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz \
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.27.2/gitleaks_8.27.2_linux_x64.tar.gz \
             | tar -xz -C /usr/local/bin gitleaks
           set +e
           gitleaks detect \
@@ -177,26 +176,26 @@ jobs:
           echo "One or more security scans failed. See artifacts for details."
           exit 1
 
-# ─────────────────────────────────────────────────────────────────────────────
-# JOB 2 – Repository Structure Checks
-# ─────────────────────────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 2 – Repository Structure Checks
+  # ─────────────────────────────────────────────────────────────────────────────
   repo-structure:
     name: 📁 Repository Structure Checks
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     outputs:
-      examples_main_result:      ${{ steps.check_examples_main.outputs.result }}
+      examples_main_result: ${{ steps.check_examples_main.outputs.result }}
       examples_variables_result: ${{ steps.check_examples_variables.outputs.result }}
-      examples_outputs_result:   ${{ steps.check_examples_outputs.outputs.result }}
-      examples_readme_result:    ${{ steps.check_examples_readme.outputs.result }}
-      root_readme_result:        ${{ steps.check_root_readme.outputs.result }}
-      amazonq_rules_result:      ${{ steps.check_amazonq.outputs.result }}
-      examples_main_failed:      ${{ steps.check_examples_main.outputs.failed }}
+      examples_outputs_result: ${{ steps.check_examples_outputs.outputs.result }}
+      examples_readme_result: ${{ steps.check_examples_readme.outputs.result }}
+      root_readme_result: ${{ steps.check_root_readme.outputs.result }}
+      amazonq_rules_result: ${{ steps.check_amazonq.outputs.result }}
+      examples_main_failed: ${{ steps.check_examples_main.outputs.failed }}
       examples_variables_failed: ${{ steps.check_examples_variables.outputs.failed }}
-      examples_outputs_failed:   ${{ steps.check_examples_outputs.outputs.failed }}
-      examples_readme_failed:    ${{ steps.check_examples_readme.outputs.failed }}
-      root_readme_failed:        ${{ steps.check_root_readme.outputs.failed }}
-      amazonq_rules_failed:      ${{ steps.check_amazonq.outputs.failed }}
+      examples_outputs_failed: ${{ steps.check_examples_outputs.outputs.failed }}
+      examples_readme_failed: ${{ steps.check_examples_readme.outputs.failed }}
+      root_readme_failed: ${{ steps.check_root_readme.outputs.failed }}
+      amazonq_rules_failed: ${{ steps.check_amazonq.outputs.failed }}
 
     steps:
       - name: 📥 Checkout code
@@ -281,9 +280,9 @@ jobs:
           echo "One or more required files/directories are missing."
           exit 1
 
-# ─────────────────────────────────────────────────────────────────────────────
-# JOB 3 – Scan Results Summary (PR comment)
-# ─────────────────────────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 3 – Scan Results Summary (PR comment)
+  # ─────────────────────────────────────────────────────────────────────────────
   scan-summary:
     name: 📊 Scan Results Summary
     runs-on: ubuntu-latest
@@ -333,9 +332,9 @@ jobs:
               body: table
             });
 
-# ─────────────────────────────────────────────────────────────────────────────
-# JOB 4 – Terraform CI (fmt, init, validate, plan)
-# ─────────────────────────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 4 – Terraform CI (fmt, init, validate, plan)
+  # ─────────────────────────────────────────────────────────────────────────────
   terraform-ci:
     name: 🏗️ Terraform CI
     runs-on: ubuntu-latest
@@ -345,53 +344,53 @@ jobs:
     env:
       TF_IN_AUTOMATION: "true"
       STRICT_OIDC_INTERNAL_PR: ${{ fromJSON(toJSON(vars)).STRICT_OIDC_INTERNAL_PR || 'false' }}
-      AWS_REGION:            ${{ secrets.AWS_REGION || 'us-east-1' }}
+      AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
 
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # Fetch full history to ensure Terraform can access all branches and tags if needed for module references
-      
+
       - name: "Configure AWS Credentials"
         id: aws_credentials
         continue-on-error: true
         uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
-              role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-              role-session-name: ${{ secrets.ROLE_SESSION_NAME }}
-              aws-region: ${{ env.AWS_REGION }}
-  
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: ${{ secrets.ROLE_SESSION_NAME }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: AWS OIDC fallback notice
         if: steps.aws_credentials.outcome == 'failure'
         run: |
-            echo "::warning::OIDC role assumption failed (sts:AssumeRoleWithWebIdentity)."
-            echo "::warning::Skipping terraform plan in this run. Verify AWS role trust policy allows this repository/event context."
-  
+          echo "::warning::OIDC role assumption failed (sts:AssumeRoleWithWebIdentity)."
+          echo "::warning::Skipping terraform plan in this run. Verify AWS role trust policy allows this repository/event context."
+
       - name: Debug OIDC subject claim
         if: steps.aws_credentials.outcome == 'failure'
         run: |
-            set -euo pipefail
-            oidc_response=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com")
-            oidc_jwt=$(echo "$oidc_response" | jq -r '.value')
-            jwt_payload=$(echo "$oidc_jwt" | cut -d'.' -f2 | tr '_-' '/+' | awk '{l=length($0)%4; if(l==2) print $0 "=="; else if(l==3) print $0 "="; else print $0}' | base64 -d)
-  
-            echo "OIDC claim check (for IAM trust policy):"
-            echo "$jwt_payload" | jq -r '. | "aud=\(.aud)\nsub=\(.sub)\nrepository=\(.repository)\nevent_name=\(.event_name)"'
-  
+          set -euo pipefail
+          oidc_response=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com")
+          oidc_jwt=$(echo "$oidc_response" | jq -r '.value')
+          jwt_payload=$(echo "$oidc_jwt" | cut -d'.' -f2 | tr '_-' '/+' | awk '{l=length($0)%4; if(l==2) print $0 "=="; else if(l==3) print $0 "="; else print $0}' | base64 -d)
+
+          echo "OIDC claim check (for IAM trust policy):"
+          echo "$jwt_payload" | jq -r '. | "aud=\(.aud)\nsub=\(.sub)\nrepository=\(.repository)\nevent_name=\(.event_name)"'
+
       - name: Enforce strict OIDC mode for internal PRs
         if: env.STRICT_OIDC_INTERNAL_PR == 'true' && steps.aws_credentials.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository
         run: |
-            echo "::error::OIDC strict mode is enabled and AWS role assumption failed for an internal PR."
-            echo "::error::Fix IAM trust policy/permissions for sts:AssumeRoleWithWebIdentity or disable STRICT_OIDC_INTERNAL_PR."
-            exit 1
-  
+          echo "::error::OIDC strict mode is enabled and AWS role assumption failed for an internal PR."
+          echo "::error::Fix IAM trust policy/permissions for sts:AssumeRoleWithWebIdentity or disable STRICT_OIDC_INTERNAL_PR."
+          exit 1
+
       - name: Verify IAM Role Assumption
         if: steps.aws_credentials.outcome == 'success'
         run: |
-              aws sts get-caller-identity
+          aws sts get-caller-identity
 
-      - name: ⚙️ Setup Terraform 
+      - name: ⚙️ Setup Terraform
         uses: hashicorp/setup-terraform@651471c36a6092792c552e8b1bef71e592b462d8 # v3.1.2
         with:
           terraform_version: latest
@@ -525,9 +524,9 @@ jobs:
           echo "One or more Terraform CI steps failed. See artifacts for details."
           exit 1
 
-# ─────────────────────────────────────────────────────────────────────────────
-# JOB 5 – Infracost Cost Estimate (feature branch push)
-# ─────────────────────────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 5 – Infracost Cost Estimate (feature branch push)
+  # ─────────────────────────────────────────────────────────────────────────────
   infracost-estimate:
     name: 💰 Infracost Cost Estimate
     runs-on: ubuntu-latest
@@ -544,11 +543,11 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: ⚙️ Setup Terraform 
+      - name: ⚙️ Setup Terraform
         uses: hashicorp/setup-terraform@651471c36a6092792c552e8b1bef71e592b462d8 # v3.1.2
         with:
           terraform_version: latest
-          terraform_wrapper:  false  # required for Infracost to parse plan JSON
+          terraform_wrapper: false # required for Infracost to parse plan JSON
 
       - name: 💰 Setup Infracost
         uses: infracost/actions/setup@fb736a8f219195d6efdca58682069b16fe1bc280 # v4.2.0
@@ -582,9 +581,9 @@ jobs:
             infracost-table.txt
           retention-days: 7
 
-# ─────────────────────────────────────────────────────────────────────────────
-# JOB 6 – Infracost PR Comment
-# ─────────────────────────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 6 – Infracost PR Comment
+  # ─────────────────────────────────────────────────────────────────────────────
   infracost-comment:
     name: 💬 Infracost PR Comment
     runs-on: ubuntu-latest
@@ -595,7 +594,7 @@ jobs:
       github.event_name == 'pull_request'
 
     permissions:
-      contents:      read
+      contents: read
       pull-requests: write
 
     env:
@@ -620,6 +619,6 @@ jobs:
       - name: 💬 Post Infracost diff comment
         uses: infracost/actions/diff@fb736a8f219195d6efdca58682069b16fe1bc280 # v4.2.0
         with:
-          api-key:   ${{ secrets.INFRACOST_API_KEY }}
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
           base-path: base/examples
           head-path: head/examples
