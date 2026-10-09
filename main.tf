@@ -44,6 +44,7 @@ resource "aws_vpc_security_group_ingress_rule" "created" {
   tags = local.common_tags
 }
 
+# trivy:ignore:AVD-AWS-0104 -- Egress CIDR is caller-supplied via security_group_egress_rules; default allow-all is intentional and documented. Restrict in production via the variable.
 resource "aws_vpc_security_group_egress_rule" "created" {
   for_each = var.create_security_group ? {
     for idx, rule in var.security_group_egress_rules : tostring(idx) => rule
