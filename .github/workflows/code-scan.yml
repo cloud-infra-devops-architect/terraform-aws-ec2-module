@@ -116,7 +116,7 @@ jobs:
       - name: 🧹 Install & Run TFLint
         id: tflint
         run: |
-          TFLINT_VERSION="v0.64.0"
+          TFLINT_VERSION="0.64.0"
           curl -sSfL \
             "https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_amd64.zip" \
             -o /tmp/tflint.zip
