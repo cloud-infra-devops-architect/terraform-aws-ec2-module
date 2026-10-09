@@ -1,0 +1,17 @@
+scan:
+  scanners:
+    - misconfig
+    - secret
+
+format: table
+
+misconfig:
+  include-non-failures: false
+
+skip-dirs:
+  - .terraform
+  - .git
+
+skip-files:
+  - "**/*.tfstate"
+  - "**/*.tfstate.backup"
