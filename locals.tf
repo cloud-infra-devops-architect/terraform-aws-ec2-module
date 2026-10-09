@@ -1,10 +1,4 @@
 locals {
-  # ── Architecture → AMI filter suffix ────────────────────────────────────────
-  arch_filter = {
-    x86_64 = "x86_64"
-    arm64  = "arm64"
-  }
-
   # ── AMI owner and filter mappings per OS × architecture ───────────────────
   ami_config = {
     amazon_linux_2 = {
@@ -63,15 +57,6 @@ locals {
   instance_family  = split(".", var.instance_type)[0]
   is_ebs_optimized = contains(local.ebs_optimized_families, local.instance_family)
 
-  # ── Nitro-based families (support enclave, NitroTPM, etc.) ──────────────────
-  nitro_families = ["m5", "m5a", "m5n", "m5zn", "m6i", "m6a", "m6in", "m7i",
-    "c5", "c5a", "c5n", "c6i", "c6a", "c6in", "c7i", "r5", "r5a", "r5n",
-    "r5b", "r6i", "r6a", "t3", "t3a", "t4g", "x2idn", "x2iedn",
-  "i3en", "i4i", "g4dn", "g5", "p3", "p4d", "inf1", "inf2"]
-
-  is_nitro = contains(local.nitro_families, local.instance_family)
-
-  # ── Graviton (arm64) families ────────────────────────────────────────────────
   graviton_families = ["t4g", "m6g", "m6gd", "m7g", "c6g", "c6gd", "c6gn", "c7g",
   "r6g", "r6gd", "r7g", "x2gd", "im4gn", "is4gen"]
 

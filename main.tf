@@ -16,6 +16,7 @@ resource "aws_key_pair" "created" {
 
 # ─── Security Group ───────────────────────────────────────────────────────────
 
+#checkov:skip=CKV2_AWS_5: Security group is attached to aws_instance.this via vpc_security_group_ids; static analysis cannot trace cross-resource references within a module.
 resource "aws_security_group" "created" {
   count       = var.create_security_group ? 1 : 0
   name        = var.security_group_name
