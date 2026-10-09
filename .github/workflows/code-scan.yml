@@ -97,7 +97,7 @@ jobs:
         id: trivy
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
-            | sh -s -- -b /usr/local/bin v0.52.2
+            | sh -s -- -b /usr/local/bin v0.63.0
           set +e
           trivy config . \
             --config trivy.yaml \

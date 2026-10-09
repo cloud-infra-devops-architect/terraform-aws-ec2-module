@@ -3,23 +3,10 @@ scan:
     - misconfig
     - secret
 
-severity:
-  - CRITICAL
-  - HIGH
-  - MEDIUM
-
-exit-code: 1
-
 format: table
 
 misconfig:
   include-non-failures: false
-
-secret:
-  config: .trivysecret.yaml
-
-terraform:
-  vars: []
 
 skip-dirs:
   - .terraform
